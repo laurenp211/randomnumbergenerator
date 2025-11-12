@@ -1,0 +1,140 @@
+"""
+🎨 Color Guessing Game
+Author: ChatGPT
+Python Version: 3.13
+Description:
+    A console-based color guessing game using modern Python features.
+    Guess the correct color chosen randomly from a palette.
+    Includes scoring, difficulty levels, and replay support.
+"""
+
+from __future__ import annotations
+import asyncio
+import random
+from dataclasses import dataclass, field
+from typing import List
+
+
+# ---------- Data Structures ---------- #
+@dataclass
+class Color:
+    name: str
+    brightness: int  # 0–100 scale
+
+
+@dataclass
+class Player:
+    name: str
+    score: int = 0
+    guesses: List[str] = field(default_factory=list)
+
+    def add_guess(self, guess: str) -> None:
+        self.guesses.append(guess)
+
+    def add_points(self, points: int) -> None:
+        self.score += points
+
+
+# ---------- Game Configuration ---------- #
+COLORS: List[Color] = [
+    Color("black", 5),
+    Color("brown", 20),
+    Color("red", 40),
+    Color("orange", 50),
+    Color("yellow", 60),
+    Color("green", 65),
+    Color("blue", 70),
+    Color("purple", 80),
+    Color("pink", 90),
+    Color("white", 100),
+]
+
+DIFFICULTY_LEVELS = {
+    "easy": 10,
+    "medium": 7,
+    "hard": 5,
+}
+
+
+# ---------- Utility Functions ---------- #
+def print_separator() -> None:
+    print("-" * 50)
+
+
+def get_color_names() -> List[str]:
+    return [c.name for c in COLORS]
+
+
+def find_color(name: str) -> Color | None:
+    for color in COLORS:
+        if color.name == name.lower():
+            return color
+    return None
+
+
+def compare_brightness(guess: Color, target: Color) -> str:
+    if guess.brightness < target.brightness:
+        return "Try a *lighter* color."
+    elif guess.brightness > target.brightness:
+        return "Try a *darker* color."
+    return "You got it!"
+
+
+# ---------- Core Game Logic ---------- #
+async def play_round(player: Player, target: Color, max_attempts: int) -> None:
+    for attempt in range(1, max_attempts + 1):
+        print_separator()
+        guess_name = input(f"Attempt {attempt}/{max_attempts} - Guess the color: ").strip().lower()
+        player.add_guess(guess_name)
+
+        guess_color = find_color(guess_name)
+        if not guess_color:
+            print("Invalid color! Choose from:", ", ".join(get_color_names()))
+            continue
+
+        match compare_brightness(guess_color, target):
+            case "You got it!":
+                print("🎉 Correct! The color was", target.name)
+                player.add_points(10 - (attempt - 1))
+                break
+            case hint:
+                print(hint)
+    else:
+        print(f"❌ Out of attempts! The correct color was '{target.name}'.")
+
+
+async def game_loop() -> None:
+    print("🎨 Welcome to the Color Guessing Game!")
+    name = input("Enter your name: ").strip() or "Player"
+    player = Player(name)
+
+    print_separator()
+    print("Choose difficulty: easy / medium / hard")
+    difficulty = input("→ ").strip().lower()
+
+    max_attempts = DIFFICULTY_LEVELS.get(difficulty, 7)
+    print(f"You have {max_attempts} attempts per round.")
+
+    while True:
+        print_separator()
+        target = random.choice(COLORS)
+        await play_round(player, target, max_attempts)
+
+        print_separator()
+        print(f"Current score: {player.score}")
+        again = input("Play again? (y/n): ").strip().lower()
+        if again != "y":
+            break
+
+    print_separator()
+    print(f"Thanks for playing, {player.name}!")
+    print(f"Your final score: {player.score}")
+    print("Your guesses this session:", ", ".join(player.guesses))
+
+
+# ---------- Main Entry Point ---------- #
+if __name__ == "__main__":
+    try:
+        asyncio.run(game_loop())
+    except KeyboardInterrupt:
+        print("\nGame interrupted. Goodbye!")
