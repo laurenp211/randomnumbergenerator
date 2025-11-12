@@ -1,0 +1,156 @@
+"""
+🎨 Color Guessing Game with Object Hints
+Author: ChatGPT
+Python Version: 3.13
+Description:
+    Guess the color based on objects associated with them.
+    Demonstrates loops, OOP, lists, tuples, dictionaries, functions, exceptions.
+"""
+
+import random
+
+# ---------- Classes (OOP Concepts) ---------- #
+class Color:
+    """Represents a color with name and associated objects for hints."""
+    def __init__(self, name: str, objects: list[str]):
+        self.name: str = name
+        self.objects: list[str] = objects
+
+    def hint(self) -> str:
+        """Return a random object as a hint."""
+        return random.choice(self.objects)
+
+    def __repr__(self):
+        return f"Color(name='{self.name}', objects={self.objects})"
+
+
+class Player:
+    """Represents a player with name, score, and guesses."""
+    def __init__(self, name: str):
+        self.name: str = name
+        self.score: int = 0
+        self.guesses: list[str] = []
+
+    def add_guess(self, guess: str):
+        self.guesses.append(guess)
+
+    def add_points(self, points: int):
+        self.score += points
+
+    def reset_guesses(self):
+        self.guesses.clear()
+
+
+# ---------- Game Data ---------- #
+COLORS: list[Color] = [
+    Color("black", ["coal", "night", "panther"]),
+    Color("brown", ["tree bark", "chocolate", "coffee"]),
+    Color("red", ["apple", "firetruck", "rose"]),
+    Color("orange", ["carrot", "pumpkin", "sunset"]),
+    Color("yellow", ["banana", "sunflower", "lemon"]),
+    Color("green", ["grass", "frog", "emerald"]),
+    Color("blue", ["sky", "ocean", "blueberry"]),
+    Color("purple", ["grape", "lavender", "eggplant"]),
+    Color("pink", ["flamingo", "cotton candy", "bubblegum"]),
+    Color("white", ["snow", "cloud", "milk"]),
+]
+
+DIFFICULTY_LEVELS: dict[str, int] = {
+    "easy": 10,
+    "medium": 7,
+    "hard": 5,
+}
+
+SCORE_POINTS: tuple[int, ...] = tuple(range(10, 0, -1))  # 10,9,...1
+
+
+# ---------- Utility Functions ---------- #
+def print_separator():
+    print("-" * 50)
+
+def get_color_names() -> list[str]:
+    return [c.name for c in COLORS]
+
+def find_color(name: str) -> Color | None:
+    for color in COLORS:
+        if color.name.lower() == name.lower():
+            return color
+    return None
+
+
+# ---------- Core Game Functions ---------- #
+def choose_difficulty() -> int:
+    while True:
+        difficulty = input("Choose difficulty (easy/medium/hard): ").strip().lower()
+        if difficulty in DIFFICULTY_LEVELS:
+            return DIFFICULTY_LEVELS[difficulty]
+        print("Invalid difficulty. Try again.")
+
+def get_player_guess(player: Player, attempt: int, max_attempts: int) -> str:
+    while True:
+        try:
+            guess_name = input(f"Attempt {attempt}/{max_attempts} - Guess the color: ").strip().lower()
+            if not guess_name:
+                raise ValueError("Empty input is not allowed!")
+            return guess_name
+        except ValueError as e:
+            print("Error:", e)
+
+def play_round(player: Player, target: Color, max_attempts: int):
+    """Play a single round using object hints."""
+    for attempt in range(1, max_attempts + 1):
+        hint_object = target.hint()
+        print(f"Hint: Something related to this color is '{hint_object}'.")
+
+        guess_name = get_player_guess(player, attempt, max_attempts)
+        player.add_guess(guess_name)
+        guess_color = find_color(guess_name)
+
+        if not guess_color:
+            print("Invalid color! Choose from:", ", ".join(get_color_names()))
+            continue
+
+        if guess_color.name == target.name:
+            points = SCORE_POINTS[attempt - 1] if attempt <= len(SCORE_POINTS) else 1
+            player.add_points(points)
+            print(f"🎉 Correct! The color was '{target.name}'")
+            break
+        else:
+            print("❌ Wrong guess, try again!")
+    else:
+        print(f"❌ Out of attempts! The correct color was '{target.name}'.")
+
+
+# ---------- Main Game Loop ---------- #
+def game_loop():
+    print("🎨 Welcome to the Color Guessing Game with Object Hints!")
+    name = input("Enter your name: ").strip() or "Player"
+    player = Player(name)
+
+    max_attempts = choose_difficulty()
+    print(f"You have {max_attempts} attempts per round.")
+
+    while True:
+        print_separator()
+        target = random.choice(COLORS)
+        play_round(player, target, max_attempts)
+
+        print_separator()
+        print(f"Current score: {player.score}")
+        print("Your guesses this session:", ", ".join(player.guesses))
+
+        again = input("Play again? (y/n): ").strip().lower()
+        if again != "y":
+            break
+
+    print_separator()
+    print(f"Thanks for playing, {player.name}!")
+    print(f"Your final score: {player.score}")
+
+
+# ---------- Entry Point ---------- #
+if __name__ == "__main__":
+    try:
+        game_loop()
+    except KeyboardInterrupt:
+        print("\nGame interrupted. Goodbye!")
