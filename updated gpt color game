@@ -1,0 +1,165 @@
+"""
+🎨 Advanced Color Guessing Game
+Author: ChatGPT
+Python Version: 3.13
+Description:
+    Console-based color guessing game showcasing Python concepts:
+    - Loops, all data types, lists, tuples, dictionaries
+    - Functions, exceptions
+    - Object-oriented programming
+"""
+
+import random
+
+# ---------- Classes (OOP Concepts) ---------- #
+class Color:
+    """Represents a color with a name and brightness (0-100)."""
+    def __init__(self, name: str, brightness: int):
+        self.name: str = name
+        self.brightness: int = brightness
+
+    def __repr__(self):
+        return f"Color(name='{self.name}', brightness={self.brightness})"
+
+
+class Player:
+    """Represents a player with name, score, and guesses."""
+    def __init__(self, name: str):
+        self.name: str = name
+        self.score: int = 0
+        self.guesses: list[str] = []
+
+    def add_guess(self, guess: str):
+        self.guesses.append(guess)
+
+    def add_points(self, points: int):
+        self.score += points
+
+    def reset_guesses(self):
+        self.guesses.clear()
+
+
+# ---------- Game Data ---------- #
+# List of colors (list of objects)
+COLORS: list[Color] = [
+    Color("black", 5),
+    Color("brown", 20),
+    Color("red", 40),
+    Color("orange", 50),
+    Color("yellow", 60),
+    Color("green", 65),
+    Color("blue", 70),
+    Color("purple", 80),
+    Color("pink", 90),
+    Color("white", 100),
+]
+
+# Dictionary for difficulty levels
+DIFFICULTY_LEVELS: dict[str, int] = {
+    "easy": 10,
+    "medium": 7,
+    "hard": 5,
+}
+
+# Tuple for score points by attempt
+SCORE_POINTS: tuple[int, ...] = tuple(range(10, 0, -1))  # (10, 9, ..., 1)
+
+
+# ---------- Utility Functions ---------- #
+def print_separator():
+    print("-" * 50)
+
+def get_color_names() -> list[str]:
+    """Return list of color names."""
+    return [c.name for c in COLORS]
+
+def find_color(name: str) -> Color | None:
+    """Return the Color object matching the name."""
+    for color in COLORS:
+        if color.name.lower() == name.lower():
+            return color
+    return None
+
+def compare_brightness(guess: Color, target: Color) -> str:
+    """Return hint based on brightness."""
+    if guess.brightness < target.brightness:
+        return "Try a *lighter* color."
+    elif guess.brightness > target.brightness:
+        return "Try a *darker* color."
+    return "You got it!"
+
+
+# ---------- Core Game Functions ---------- #
+def choose_difficulty() -> int:
+    """Prompt player for difficulty and return max attempts."""
+    while True:
+        difficulty = input("Choose difficulty (easy/medium/hard): ").strip().lower()
+        if difficulty in DIFFICULTY_LEVELS:
+            return DIFFICULTY_LEVELS[difficulty]
+        print("Invalid difficulty. Try again.")
+
+def get_player_guess(player: Player, attempt: int, max_attempts: int) -> str:
+    """Prompt player for a color guess with exception handling."""
+    while True:
+        try:
+            guess_name = input(f"Attempt {attempt}/{max_attempts} - Guess the color: ").strip().lower()
+            if not guess_name:
+                raise ValueError("Empty input is not allowed!")
+            return guess_name
+        except ValueError as e:
+            print("Error:", e)
+
+def play_round(player: Player, target: Color, max_attempts: int):
+    """Play a single round of the game."""
+    for attempt in range(1, max_attempts + 1):
+        guess_name = get_player_guess(player, attempt, max_attempts)
+        player.add_guess(guess_name)
+        guess_color = find_color(guess_name)
+
+        if not guess_color:
+            print("Invalid color! Choose from:", ", ".join(get_color_names()))
+            continue
+
+        hint = compare_brightness(guess_color, target)
+        print(hint)
+        if hint == "You got it!":
+            points = SCORE_POINTS[attempt - 1] if attempt <= len(SCORE_POINTS) else 1
+            player.add_points(points)
+            break
+    else:
+        print(f"❌ Out of attempts! The correct color was '{target.name}'.")
+
+
+# ---------- Main Game Loop ---------- #
+def game_loop():
+    print("🎨 Welcome to the Advanced Color Guessing Game!")
+    name = input("Enter your name: ").strip() or "Player"
+    player = Player(name)
+
+    max_attempts = choose_difficulty()
+    print(f"You have {max_attempts} attempts per round.")
+
+    while True:
+        print_separator()
+        target = random.choice(COLORS)
+        play_round(player, target, max_attempts)
+
+        print_separator()
+        print(f"Current score: {player.score}")
+        print("Your guesses this session:", ", ".join(player.guesses))
+
+        again = input("Play again? (y/n): ").strip().lower()
+        if again != "y":
+            break
+
+    print_separator()
+    print(f"Thanks for playing, {player.name}!")
+    print(f"Your final score: {player.score}")
+
+
+# ---------- Entry Point ---------- #
+if __name__ == "__main__":
+    try:
+        game_loop()
+    except KeyboardInterrupt:
+        print("\nGame interrupted. Goodbye!")
