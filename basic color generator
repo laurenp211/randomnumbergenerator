@@ -1,0 +1,19 @@
+import random
+
+colors = ["red", "blue", "green", "yellow", "purple", "orange" ]
+object = ["apple", "sky", "lime", "banana", "eggplant", "pumpkin" ]
+# print(colors[2])
+n = random.choice(colors)
+p = random.choice(object)
+
+a = random.randint(0, 5)
+
+print(object[a])
+
+x = input()
+
+if x == colors[a]:
+    print("Correct")
+else:
+    print("Wrong")
+
