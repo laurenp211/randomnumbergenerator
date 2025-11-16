@@ -1,11 +1,4 @@
 """
-🎨 Color Guessing Game
-Author: ChatGPT
-Python Version: 3.13
-Description:
-    A console-based color guessing game using modern Python features.
-    Guess the correct color chosen randomly from a palette.
-    Includes scoring, difficulty levels, and replay support.
 """
 
 from __future__ import annotations
