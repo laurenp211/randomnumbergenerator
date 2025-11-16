@@ -1,7 +1,5 @@
 """
-🎨 Advanced Color Guessing Game
-Author: ChatGPT
-Python Version: 3.13
+
 Description:
     Console-based color guessing game showcasing Python concepts:
     - Loops, all data types, lists, tuples, dictionaries
