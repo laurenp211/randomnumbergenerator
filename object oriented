@@ -111,17 +111,17 @@ def play_round(player: Player, target: Color, max_attempts: int):
         if guess_color.name == target.name:
             points = SCORE_POINTS[attempt - 1] if attempt <= len(SCORE_POINTS) else 1
             player.add_points(points)
-            print(f"🎉 Correct! The color was '{target.name}'")
+            print(f" Correct! The color was '{target.name}'")
             break
         else:
-            print("❌ Wrong guess, try again!")
+            print(" Wrong guess, try again!")
     else:
-        print(f"❌ Out of attempts! The correct color was '{target.name}'.")
+        print(f" Out of attempts! The correct color was '{target.name}'.")
 
 
 # ---------- Main Game Loop ---------- #
 def game_loop():
-    print("🎨 Welcome to the Color Guessing Game with Object Hints!")
+    print(" Welcome to the Color Guessing Game with Object Hints!")
     name = input("Enter your name: ").strip() or "Player"
     player = Player(name)
 
