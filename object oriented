@@ -1,7 +1,5 @@
 """
-🎨 Color Guessing Game with Object Hints
-Author: ChatGPT
-Python Version: 3.13
+Color Guessing Game with Object Hints
 Description:
     Guess the color based on objects associated with them.
     Demonstrates loops, OOP, lists, tuples, dictionaries, functions, exceptions.
